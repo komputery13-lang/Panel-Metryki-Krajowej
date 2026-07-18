@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metryka Kraju</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #111827;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #111827;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 720px;
+            width: 95%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .tabs {
+            display: flex;
+            background: #e5e7eb;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 3px solid #111827;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 6px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #111827;
+        }
+        .tab-btn.active {
+            background: #111827;
+            color: #ffffff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .main-title {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            color: #111827;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+        .divider {
+            height: 3px;
+            background-color: #111827;
+            margin: 20px 0;
+        }
+
+        .data-box {
+            text-align: left;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background-color: #ffffff;
+            border: 3px solid #111827;
+            box-shadow: 4px 4px 0px #111827;
+        }
+        .box-value {
+            font-size: 26px;
+            font-weight: 900;
+            color: #111827;
+        }
+        .box-label {
+            font-size: 13px;
+            color: #374151;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .progress-wrapper {
+            background: #000000;
+            padding: 20px;
+            border-radius: 0px;
+            text-align: left;
+            margin-top: 25px;
+            border: 3px solid #111827;
+        }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .progress-bg {
+            background: #222;
+            height: 24px;
+            border-radius: 0px;
+            border: 2px solid #ffffff;
+            position: relative;
+        }
+        .progress-bar {
+            background: #dc2626 !important;
+            height: 100%;
+            width: 0%;
+            border-radius: 0px;
+            transition: width 2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .table-container {
+            max-height: 320px;
+            overflow-y: auto;
+            border: 3px solid #111827;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            background: #111827;
+            color: #ffffff;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+        }
+        tr:hover td { background-color: #f9fafb; }
+
+        .chart-container { 
+            margin-top: 20px; 
+            height: 180px; 
+            display: flex; 
+            justify-content: center; 
+        }
+        .btn-link {
+            display: inline-block;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #111827;
+            font-size: 14px;
+            font-weight: 900;
+            border-bottom: 3px solid #111827;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'tab-profil')">Profil</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-finanse')">Podatki</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-polska')">GUS</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-tabela')">Tabela 0-100</button>
+    </div>
+
+    <div id="tab-profil" class="tab-content active">
+        <div class="main-title">Rocznik {{ rok_urodzenia }}</div>
+        
+        <div class="data-box" style="background-color: #f9fafb;">
+            <div class="box-label" style="font-size: 15px; color: #111827; line-height: 1.5; margin: 0;">
+                <span style="text-transform: uppercase; font-size:11px; color:#6b7280; display:block;">Kluczowe Wydarzenie</span>
+                {{ wydarzenie }}
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="data-box">
+                <div class="box-value">{{ ile_osob }}</div>
+                <div class="box-label">Rówieśników w PL</div>
+            </div>
+            <div class="data-box">
+                <div class="box-value">{{ proc }}%</div>
+                <div class="box-label">Udział w kraju</div>
+            </div>
+        </div>
+
+        <div class="progress-wrapper">
+            <div class="progress-text">
+                <span style="color:#ef4444; font-weight:900;">MEMENTO MORI // STATYSTYCZNE ZUŻYCIE CZASU ŻYCIA</span>
+                <span style="color: #ffffff; font-family: monospace; font-size: 14px;">{{ procent_zycia }}%</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-bar" id="lifeBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-finanse" class="tab-content">
+        <div class="main-title" style="color: #16a34a; margin-bottom: 10px;">{{ podatki.netto }} zł <span style="font-size:16px; color:#6b7280; font-weight:400;">na rękę</span></div>
+        
+        <div class="data-box" style="border-color: #b91c1c; background-color: #fef2f2;">
+            <div class="box-value" style="color: #b91c1c;">{{ podatki.suma_potracen }} zł</div>
+            <div class="box-label" style="color: #b91c1c;">TYLE ŁĄCZNIE ZABIERA PAŃSTWO (Suma składek i podatków)</div>
+        </div>
+
+        <div class="divider" style="margin: 15px 0;"></div>
+
+        <div class="grid-2">
+            <div class="data-box">
+                <div class="box-value" style="font-size: 18px;">{{ podatki.emerytalna }} zł</div>
+                <div class="box-label">ZUS Emerytalne</div>
+            </div>
+            <div class="data-box">
+                <div class="box-value" style="font-size: 18px;">{{ podatki.zdrowotna }} zł</div>
+                <div class="box-label">NFZ Zdrowotne</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="data-box">
+                <div class="box-value" style="font-size: 16px;">{{ podatki.rentowa }} zł</div>
+                <div class="box-label">ZUS Rentowe</div>
+            </div>
+            <div class="data-box">
+                <div class="box-value" style="font-size: 16px;">{{ podatki.chorobowa }} zł</div>
+                <div class="box-label">ZUS Chorobowe</div>
+            </div>
+        </div>
+
+        <div class="data-box">
+            <div class="box-value" style="font-size: 18px; color: #c2410c;">{{ podatki.pit }} zł</div>
+            <div class="box-label">Podatek dochodowy (PIT do Urzędu Skarbowego)</div>
+        </div>
+    </div>
+
+    <div id="tab-polska" class="tab-content">
+        <div class="grid-2">
+            <div class="data-box">
+                <div class="box-value">{{ gus.pensja_brutto }} zł</div>
+                <div class="box-label">Średnia krajowa (BRUTTO)</div>
+            </div>
+            <div class="data-box">
+                <div class="box-value">{{ gus.inflacja }}%</div>
+                <div class="box-label">Inflacja rdr</div>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="data-box">
+                <div class="box-value">{{ gus.stopa_bezrobocia }}%</div>
+                <div class="box-label">Bezrobocie</div>
+            </div>
+            <div class="data-box">
+                <div class="box-value">{{ gus.pkb_wzrost }}%</div>
+                <div class="box-label">Wzrost PKB</div>
+            </div>
+        </div>
+
+        <div class="divider" style="margin: 15px 0;"></div>
+        <div style="font-size: 11px; font-weight: 800; color: #6b7280; text-transform: uppercase; text-align: left;">Kwartalny stosunek narodzin do zgonów</div>
+        <div class="chart-container">
+            <canvas id="gusChart"></canvas>
+        </div>
+    </div>
+
+    <div id="tab-tabela" class="tab-content">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Wiek</th>
+                        <th style="width: 15%;">Rok</th>
+                        <th style="width: 70%;">Pełne Wydarzenie Historyczne</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for wiersz in tabela %}
+                    <tr>
+                        <td>{{ wiersz.wiek }} l.</td>
+                        <td style="font-weight: 700;">{{ wiersz.rok }}</td>
+                        <td style="color:#374151; font-size:12px; line-height: 1.4;">{{ wiersz.wydarzenie_pelne }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="/" class="btn-link">← ZMIEŃ DANE</a>
+</div>
+
+<script>
+    let chartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('lifeBar').style.width = "{{ procent_zycia }}%";
+    });
+
+    function switchTab(event, tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+
+        if (tabId === 'tab-profil') {
+            document.getElementById('lifeBar').style.width = "0%";
+            setTimeout(() => {
+                document.getElementById('lifeBar').style.width = "{{ procent_zycia }}%";
+            }, 50);
+        }
+        if (tabId === 'tab-polska') {
+            setTimeout(initChart, 50);
+        }
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('gusChart').getContext('2d');
+        if (chartInstance) { chartInstance.destroy(); }
+        
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Urodzenia żywe', 'Zgony ogółem'],
+                datasets: [{
+                    data: [Number('{{ gus.urodzenia_kwartal }}'), Number('{{ gus.zgony_kwartal }}')],
+                    backgroundColor: ['#2563eb', '#dc2626'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { weight: 'bold' } } }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
